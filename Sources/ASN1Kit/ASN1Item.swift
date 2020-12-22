@@ -121,6 +121,34 @@ extension ASN1 {
             value.append(child.data)
         }
         
+        public func filter(_ isIncluded: (ASN1.Item) throws -> Bool) rethrows -> [ASN1.Item] {
+            var items = [ASN1.Item]()
+            if try isIncluded(self) { items.append(self) }
+            for child in children ?? [] {
+                items.append(contentsOf: try child.filter(isIncluded))
+            }
+            return items
+        }
+        
+        public func first(where predicate: (ASN1.Item) throws -> Bool) rethrows -> ASN1.Item? {
+            if try predicate(self) { return self }
+            for child in children ?? [] {
+                return try child.first(where: predicate)
+            }
+            return nil
+        }
+        
+        public func filter(on value: ASN1.Tag.Value) -> [ASN1.Item] {
+            var items = [ASN1.Item]()
+            if self.tag.value == value {
+                items.append(self)
+            }
+            for child in children ?? [] {
+                items.append(contentsOf: child.filter(on: value))
+            }
+            return items
+        }
+        
         /// Dump the ASN.1 item to the console.
         /// - Parameter inset: The number of insets to apply to the print.
         public func dump(inset: Int = 0) {
