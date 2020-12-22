@@ -75,7 +75,12 @@ extension ASN1 {
         /// The form of the tag.
         public let form: Form
         /// The encoded value of the tag.
-        public let encoded: UInt8
+        public let value: Value
+        
+        /// The encoded tag.
+        private(set) public lazy var data: Data = {
+            Data([self.class.rawValue | form.rawValue | value.rawValue])
+        }()
         
         /// Boolean value indicating whether or not the tag is a primitive.
         public lazy var isPrimitive: Bool = {
@@ -93,7 +98,7 @@ extension ASN1 {
         public init(_ rawValue: UInt8) {
             `class` = Class(rawValue: rawValue & 0b11000000)!
             form    = Form(rawValue: rawValue & 0b00100000)!
-            encoded = rawValue
+            value   = Value(rawValue: rawValue & 0b00011111)!
         }
         
         /// Construct the tag from its required components.
@@ -154,13 +159,13 @@ extension ASN1.Tag {
 // MARK: Equatable
 extension ASN1.Tag: Equatable {
     public static func == (lhs: ASN1.Tag, rhs: ASN1.Tag) -> Bool {
-        lhs.encoded == rhs.encoded
+        lhs.data.first! == rhs.data.first!
     }
 }
 
 // MARK: Comparable
 extension ASN1.Tag: Comparable {
     public static func < (lhs: ASN1.Tag, rhs: ASN1.Tag) -> Bool {
-        lhs.encoded < rhs.encoded
+        lhs.data.first! < rhs.data.first!
     }
 }
