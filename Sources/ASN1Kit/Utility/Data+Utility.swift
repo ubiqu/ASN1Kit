@@ -2,12 +2,12 @@ import Foundation
 
 // MARK: - Mutating
 
-internal extension Data {
+extension Data {
     /// Removes and returns the range of data at the specified position.
     /// - Parameter range: The range to remove. `range` must be valid
     /// for the collection and should not exceed the collection's end index.
     /// - Returns: The removed data.
-    mutating func remove(at range: Range<Data.Index>) -> Self {
+    @discardableResult mutating func remove(at range: Range<Data.Index>) -> Self {
         precondition(range.lowerBound >= 0, "Range invalid, lower bound cannot be below 0")
         precondition(range.upperBound <= self.count, "Range invalid, upper bound exceeds data size")
         
@@ -21,7 +21,7 @@ internal extension Data {
 /// A character set containing only hexadecimal characters.
 let hexCharacterSet = CharacterSet(charactersIn: "0123456789abcdefABCDEF")
 
-internal extension String {
+extension String {
     /// Indication if a `String` contains only hexadecimal characters.
     var isHexString: Bool {
         return self.rangeOfCharacter(from: hexCharacterSet.inverted) == nil
@@ -51,7 +51,7 @@ extension Character {
     }
 }
 
-internal extension Data {
+extension Data {
     /// Initialize a `Data` object from a hexadecimal `String`.
     ///
     /// - Note: The initializer will fail when invalid hexadecimal data is provided.
@@ -97,7 +97,7 @@ extension UInt8 {
     }
 }
 
-internal extension Data {
+extension Data {
     /// Retrieve the hexadecimal string for the data.
     var hexadecimal: String {
         var characters  = [Character](repeating: Character(" "), count: count * 2)

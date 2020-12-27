@@ -1,6 +1,6 @@
 import Foundation
 
-internal extension Numeric {
+extension Numeric {
     /// The raw bytes of the numeric value.
     var bytes: Data {
         var source = self

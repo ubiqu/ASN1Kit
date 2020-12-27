@@ -1,6 +1,6 @@
 import Foundation
 
-internal extension BinaryInteger {
+extension BinaryInteger {
     /// Calculate the quotient and remainder of two numbers.
     ///
     /// Example
