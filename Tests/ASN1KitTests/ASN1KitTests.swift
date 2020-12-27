@@ -30,9 +30,23 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(boolFromData.data, boolEncoded)
     }
     
-    func testExample() {}
+    func testBoolean() {
+        let booleanTrue = ASN1.Boolean(bool: true)
+        XCTAssertEqual(booleanTrue.tag, .boolean)
+        XCTAssertEqual(booleanTrue.value, Data([0x01]))
+        
+        let booleanFalse = ASN1.Boolean(bool: false)
+        XCTAssertEqual(booleanFalse.tag, .boolean)
+        XCTAssertEqual(booleanFalse.value, Data([0x00]))
+        
+        let booleanDecoded = ASN1.Item.decode(data: booleanTrue.data)
+        XCTAssertTrue(booleanDecoded is ASN1.Boolean)
+        XCTAssertEqual(booleanDecoded.tag, .boolean)
+        XCTAssertEqual(booleanDecoded.value, Data([0x01]))
+    }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("testStaticTags", testStaticTags),
+        ("testItem", testItem)
     ]
 }
