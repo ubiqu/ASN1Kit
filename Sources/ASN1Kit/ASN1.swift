@@ -203,6 +203,7 @@ extension ASN1 {
             
             switch tag {
             case .boolean: return ASN1.Boolean(data: data)
+            case .integer: return ASN1.Integer(data: data)
             default:
                 print("Unimplemented dedicated class for tag \(tag)")
                 return ASN1.Item(data: data)

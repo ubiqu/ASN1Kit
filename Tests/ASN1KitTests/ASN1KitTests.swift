@@ -44,6 +44,110 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(booleanDecoded.tag, .boolean)
         XCTAssertEqual(booleanDecoded.value, Data([0x01]))
     }
+    
+    func testUnsignedInteger() {
+        let a: UInt8 = 0x12
+        let itemA = ASN1.Integer(a)
+        XCTAssertEqual(itemA.tag, .integer)
+        XCTAssertEqual(itemA.length, 1)
+        XCTAssertEqual(itemA.data, Data([0x02, 0x01, 0x12]))
+        
+        let b: UInt16 = 0x1234
+        let itemB = ASN1.Integer(b)
+        XCTAssertEqual(itemB.tag, .integer)
+        XCTAssertEqual(itemB.length, 2)
+        XCTAssertEqual(itemB.data, Data([0x02, 0x02, 0x12, 0x34]))
+        
+        let c: UInt32 = 0x12345678
+        let itemC = ASN1.Integer(c)
+        XCTAssertEqual(itemC.tag, .integer)
+        XCTAssertEqual(itemC.length, 4)
+        XCTAssertEqual(itemC.data, Data([0x02, 0x04, 0x12, 0x34, 0x56, 0x78]))
+        
+        let d: UInt64 = 0x1234567887654321
+        let itemD = ASN1.Integer(d)
+        XCTAssertEqual(itemD.tag, .integer)
+        XCTAssertEqual(itemD.length, 8)
+        XCTAssertEqual(itemD.data, Data([0x02, 0x08, 0x12, 0x34, 0x56, 0x78, 0x87, 0x65, 0x43, 0x21]))
+        
+        let e = UInt(a)
+        let itemE = ASN1.Integer(e)
+        XCTAssertEqual(itemE.tag, .integer)
+        XCTAssertEqual(itemE.length, 1)
+        XCTAssertEqual(itemE.data, Data([0x02, 0x01, 0x12]))
+        
+        let integerDecoded = ASN1.Item.decode(data: itemE.data)
+        XCTAssertTrue(integerDecoded is ASN1.Integer)
+        XCTAssertEqual(integerDecoded.tag, .integer)
+        XCTAssertEqual(integerDecoded.value, Data([0x12]))
+    }
+    
+    func testSignedInteger() {
+        let a: Int8 = 0x12
+        let itemA = ASN1.Integer(a)
+        XCTAssertEqual(itemA.tag, .integer)
+        XCTAssertEqual(itemA.length, 1)
+        XCTAssertEqual(itemA.data, Data([0x02, 0x01, 0x12]))
+        
+        let b: Int16 = 0x1234
+        let itemB = ASN1.Integer(b)
+        XCTAssertEqual(itemB.tag, .integer)
+        XCTAssertEqual(itemB.length, 2)
+        XCTAssertEqual(itemB.data, Data([0x02, 0x02, 0x12, 0x34]))
+        
+        let c: Int32 = 0x12345678
+        let itemC = ASN1.Integer(c)
+        XCTAssertEqual(itemC.tag, .integer)
+        XCTAssertEqual(itemC.length, 4)
+        XCTAssertEqual(itemC.data, Data([0x02, 0x04, 0x12, 0x34, 0x56, 0x78]))
+        
+        let d: Int64 = 0x1234567887654321
+        let itemD = ASN1.Integer(d)
+        XCTAssertEqual(itemD.tag, .integer)
+        XCTAssertEqual(itemD.length, 8)
+        XCTAssertEqual(itemD.data, Data([0x02, 0x08, 0x12, 0x34, 0x56, 0x78, 0x87, 0x65, 0x43, 0x21]))
+        
+        let e = Int(a)
+        let itemE = ASN1.Integer(e)
+        XCTAssertEqual(itemE.tag, .integer)
+        XCTAssertEqual(itemE.length, 1)
+        XCTAssertEqual(itemE.data, Data([0x02, 0x01, 0x12]))
+        
+        let integerDecoded = ASN1.Item.decode(data: itemE.data)
+        XCTAssertTrue(integerDecoded is ASN1.Integer)
+        XCTAssertEqual(integerDecoded.tag, .integer)
+        XCTAssertEqual(integerDecoded.value, Data([0x12]))
+    }
+    
+    /// Make sure negative numbers are encoded correctly.
+    func testSignedIntegerNegative() {
+        let a = -26731
+        let itemA = ASN1.Integer(a)
+        XCTAssertEqual(itemA.tag, .integer)
+        XCTAssertEqual(itemA.length, 2)
+        XCTAssertEqual(itemA.data, Data([0x02, 0x02, 0x97, 0x95]))
+        
+        let b = -127
+        let itemB = ASN1.Integer(b)
+        XCTAssertEqual(itemB.tag, .integer)
+        XCTAssertEqual(itemB.length, 1)
+        XCTAssertEqual(itemB.data, Data([0x02, 0x01, 0x81]))
+        
+        let c = -128
+        let itemC = ASN1.Integer(c)
+        XCTAssertEqual(itemC.tag, .integer)
+        XCTAssertEqual(itemC.length, 1)
+        XCTAssertEqual(itemC.data, Data([0x02, 0x01, 0x80]))
+    }
+    
+    /// Make sure positive numbers get the prepended zeros.
+    func testSignedIntegerPositive() {
+        let a = 128
+        let itemA = ASN1.Integer(a)
+        XCTAssertEqual(itemA.tag, .integer)
+        XCTAssertEqual(itemA.length, 2)
+        XCTAssertEqual(itemA.data, Data([0x02, 0x02, 0x00, 0x80]))
+    }
 
     static var allTests = [
         ("testStaticTags", testStaticTags),
