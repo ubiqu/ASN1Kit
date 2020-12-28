@@ -148,9 +148,38 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(itemA.length, 2)
         XCTAssertEqual(itemA.data, Data([0x02, 0x02, 0x00, 0x80]))
     }
+    
+    func testBitString() {
+        let encoded: [Data] = [
+            Data([0x07, 0x80]), Data([0x06, 0xc0]),
+            Data([0x05, 0xe0]), Data([0x04, 0xf0]),
+            Data([0x03, 0xf8]), Data([0x02, 0xfc]),
+            Data([0x01, 0xfe]), Data([0x00, 0xff])
+        ]
+        
+        for bits in 1 ... 8 {
+            let bitString = String(repeating: "1", count: bits)
+            let unused = UInt8(8 - bits)
+            
+            let item = ASN1.BitString(bitString: bitString)
+            XCTAssertEqual(item.value.first, unused)
+            XCTAssertEqual(item.value, encoded[bits - 1])
+        }
+        
+        let bitStringEncoded = Data([0x03, 0x02, 0x02, 0xfc])
+        let bitString = ASN1.Item.decode(data: bitStringEncoded)
+        XCTAssertTrue(bitString is ASN1.BitString)
+        XCTAssertEqual(bitString.tag, .bitString)
+        XCTAssertEqual(bitString.data, bitStringEncoded)
+    }
 
     static var allTests = [
         ("testStaticTags", testStaticTags),
-        ("testItem", testItem)
+        ("testItem", testItem),
+        ("testUnsignedInteger", testUnsignedInteger),
+        ("testSignedInteger", testSignedInteger),
+        ("testSignedIntegerNegative", testSignedIntegerNegative),
+        ("testSignedIntegerPositive", testSignedIntegerPositive),
+        ("testBitString", testBitString)
     ]
 }
