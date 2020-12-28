@@ -9,6 +9,7 @@ extension ASN1 {
             self.init(tag: .bmpString, value: bmpString.data(using: .utf16BigEndian)!)
         }
         
+        /// The decoded BMP string.
         public lazy var bmpString: String = {
             String(data: value, encoding: .utf16BigEndian)!
         }()

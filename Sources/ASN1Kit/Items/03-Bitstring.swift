@@ -34,5 +34,21 @@ extension ASN1 {
             
             self.init(tag: .bitString, value: data)
         }
+        
+        /// The decoded bitstring.
+        public lazy var bitString: String = {
+            var copy = value
+            let unused = Int(copy.removeFirst())
+            var bitString = copy.map { $0.bitString }.joined()
+            bitString.removeLast(unused)
+            return bitString
+        }()
+    }
+}
+
+fileprivate extension UInt8 {
+    /// The bits that make up the byte.
+    var bitString: String {
+        String(repeating: "0", count: leadingZeroBitCount) + (self > 0 ? String(self, radix: 2) : "")
     }
 }

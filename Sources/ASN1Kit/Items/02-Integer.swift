@@ -69,5 +69,23 @@ extension ASN1 {
         public convenience init(_ int: Int) {
             self.init(Int64(int))
         }
+        
+        /// The decoded `UInt` value.
+        public lazy var uint: UInt = {
+            var copy = value
+            while copy.count < MemoryLayout<UInt>.size {
+                copy.insert(0, at: 0)
+            }
+            return copy.withUnsafeBytes { $0.load(as: UInt.self) }.bigEndian
+        }()
+        
+        /// The decoded `Int` value.
+        public lazy var int: Int = {
+            var copy = value
+            while copy.count < MemoryLayout<UInt>.size {
+                copy.insert(copy.first! & 0b1000_0000 == 0b1000_0000 ? 0xff : 0x00, at: 0)
+            }
+            return copy.withUnsafeBytes { $0.load(as: Int.self) }.bigEndian
+        }()
     }
 }

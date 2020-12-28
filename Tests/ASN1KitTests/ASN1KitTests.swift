@@ -51,30 +51,35 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(itemA.tag, .integer)
         XCTAssertEqual(itemA.length, 1)
         XCTAssertEqual(itemA.data, Data([0x02, 0x01, 0x12]))
+        XCTAssertEqual(itemA.uint, UInt(a))
         
         let b: UInt16 = 0x1234
         let itemB = ASN1.Integer(b)
         XCTAssertEqual(itemB.tag, .integer)
         XCTAssertEqual(itemB.length, 2)
         XCTAssertEqual(itemB.data, Data([0x02, 0x02, 0x12, 0x34]))
+        XCTAssertEqual(itemB.uint, UInt(b))
         
         let c: UInt32 = 0x12345678
         let itemC = ASN1.Integer(c)
         XCTAssertEqual(itemC.tag, .integer)
         XCTAssertEqual(itemC.length, 4)
         XCTAssertEqual(itemC.data, Data([0x02, 0x04, 0x12, 0x34, 0x56, 0x78]))
+        XCTAssertEqual(itemC.uint, UInt(c))
         
         let d: UInt64 = 0x1234567887654321
         let itemD = ASN1.Integer(d)
         XCTAssertEqual(itemD.tag, .integer)
         XCTAssertEqual(itemD.length, 8)
         XCTAssertEqual(itemD.data, Data([0x02, 0x08, 0x12, 0x34, 0x56, 0x78, 0x87, 0x65, 0x43, 0x21]))
+        XCTAssertEqual(itemD.uint, UInt(d))
         
         let e = UInt(a)
         let itemE = ASN1.Integer(e)
         XCTAssertEqual(itemE.tag, .integer)
         XCTAssertEqual(itemE.length, 1)
         XCTAssertEqual(itemE.data, Data([0x02, 0x01, 0x12]))
+        XCTAssertEqual(itemE.uint, e)
         
         let integerDecoded = ASN1.Item.decode(data: itemE.data)
         XCTAssertTrue(integerDecoded is ASN1.Integer)
@@ -88,30 +93,35 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(itemA.tag, .integer)
         XCTAssertEqual(itemA.length, 1)
         XCTAssertEqual(itemA.data, Data([0x02, 0x01, 0x12]))
+        XCTAssertEqual(itemA.int, Int(a))
         
         let b: Int16 = 0x1234
         let itemB = ASN1.Integer(b)
         XCTAssertEqual(itemB.tag, .integer)
         XCTAssertEqual(itemB.length, 2)
         XCTAssertEqual(itemB.data, Data([0x02, 0x02, 0x12, 0x34]))
+        XCTAssertEqual(itemB.int, Int(b))
         
         let c: Int32 = 0x12345678
         let itemC = ASN1.Integer(c)
         XCTAssertEqual(itemC.tag, .integer)
         XCTAssertEqual(itemC.length, 4)
         XCTAssertEqual(itemC.data, Data([0x02, 0x04, 0x12, 0x34, 0x56, 0x78]))
+        XCTAssertEqual(itemC.int, Int(c))
         
         let d: Int64 = 0x1234567887654321
         let itemD = ASN1.Integer(d)
         XCTAssertEqual(itemD.tag, .integer)
         XCTAssertEqual(itemD.length, 8)
         XCTAssertEqual(itemD.data, Data([0x02, 0x08, 0x12, 0x34, 0x56, 0x78, 0x87, 0x65, 0x43, 0x21]))
+        XCTAssertEqual(itemD.int, Int(d))
         
         let e = Int(a)
         let itemE = ASN1.Integer(e)
         XCTAssertEqual(itemE.tag, .integer)
         XCTAssertEqual(itemE.length, 1)
         XCTAssertEqual(itemE.data, Data([0x02, 0x01, 0x12]))
+        XCTAssertEqual(itemE.int, e)
         
         let integerDecoded = ASN1.Item.decode(data: itemE.data)
         XCTAssertTrue(integerDecoded is ASN1.Integer)
@@ -126,18 +136,21 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(itemA.tag, .integer)
         XCTAssertEqual(itemA.length, 2)
         XCTAssertEqual(itemA.data, Data([0x02, 0x02, 0x97, 0x95]))
+        XCTAssertEqual(itemA.int, a)
         
         let b = -127
         let itemB = ASN1.Integer(b)
         XCTAssertEqual(itemB.tag, .integer)
         XCTAssertEqual(itemB.length, 1)
         XCTAssertEqual(itemB.data, Data([0x02, 0x01, 0x81]))
+        XCTAssertEqual(itemB.int, b)
         
         let c = -128
         let itemC = ASN1.Integer(c)
         XCTAssertEqual(itemC.tag, .integer)
         XCTAssertEqual(itemC.length, 1)
         XCTAssertEqual(itemC.data, Data([0x02, 0x01, 0x80]))
+        XCTAssertEqual(itemC.int, c)
     }
     
     /// Make sure positive numbers get the prepended zeros.
@@ -147,6 +160,7 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(itemA.tag, .integer)
         XCTAssertEqual(itemA.length, 2)
         XCTAssertEqual(itemA.data, Data([0x02, 0x02, 0x00, 0x80]))
+        XCTAssertEqual(itemA.int, a)
     }
     
     func testBitString() {
@@ -164,6 +178,7 @@ final class ASN1KitTests: XCTestCase {
             let item = ASN1.BitString(bitString: bitString)
             XCTAssertEqual(item.value.first, unused)
             XCTAssertEqual(item.value, encoded[bits - 1])
+            XCTAssertEqual(bitString, item.bitString)
         }
         
         let bitStringEncoded = Data([0x03, 0x02, 0x02, 0xfc])
