@@ -213,6 +213,7 @@ extension ASN1 {
             case .objectIdentifier: return ASN1.ObjectIdentifier(data: data)
             case .utf8String:       return ASN1.UTF8String(data: data)
             case .sequence:         return ASN1.Sequence(data: data)
+            case .set:              return ASN1.Set(data: data)
             default:
                 NSLog("[ASN1Kit] Unimplemented dedicated class for tag (\(tag.data.hexadecimal))")
                 return ASN1.Item(data: data)

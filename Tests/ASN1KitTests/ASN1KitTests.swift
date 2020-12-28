@@ -257,6 +257,32 @@ final class ASN1KitTests: XCTestCase {
             XCTAssertNotNil(item.parent)
         }
     }
+    
+    func testSet() {
+        let oid = ASN1.OID(oidString: "2.5.4.10")
+        let str = ASN1.Item(tag: .printableString, value: Data([0x13, 0x1B, 0x44, 0x69, 0x67, 0x69, 0x74, 0x61, 0x6C, 0x20, 0x53, 0x69, 0x67, 0x6E, 0x61, 0x74, 0x75, 0x72, 0x65, 0x20, 0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x43, 0x6F, 0x2E]))
+        
+        let set = ASN1.Set([oid, str])
+        XCTAssertEqual(set.tag, .set)
+        XCTAssertEqual(set.length, oid.data.count + str.data.count)
+        XCTAssertEqual(set.value, oid.data + str.data)
+        XCTAssertEqual(set.children.count, 2)
+        
+        for item in [oid, str] {
+            XCTAssertNotNil(item.parent)
+        }
+        
+        let setDecoded = ASN1.Item.decode(data: set.data)
+        XCTAssertTrue(setDecoded is ASN1.Set)
+        XCTAssertEqual(setDecoded.tag, .set)
+        XCTAssertEqual(setDecoded.length, oid.data.count + str.data.count)
+        XCTAssertEqual(setDecoded.value, oid.data + str.data)
+        XCTAssertEqual((setDecoded as? ConstructedItem)?.children.count, 2)
+        
+        for item in (setDecoded as! ConstructedItem).children {
+            XCTAssertNotNil(item.parent)
+        }
+    }
 
     static var allTests = [
         ("testStaticTags", testStaticTags),
@@ -270,6 +296,7 @@ final class ASN1KitTests: XCTestCase {
         ("testNull", testNull),
         ("testObjectIdentifier", testObjectIdentifier),
         ("testUTF8String", testUTF8String),
-        ("testSequence", testSequence)
+        ("testSequence", testSequence),
+        ("testSet", testSet)
     ]
 }
