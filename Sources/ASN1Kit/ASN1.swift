@@ -202,9 +202,10 @@ extension ASN1 {
             let tag = ASN1.Tag(data.first!)
             
             switch tag {
-            case .boolean:   return ASN1.Boolean(data: data)
-            case .integer:   return ASN1.Integer(data: data)
-            case .bitString: return ASN1.BitString(data: data)
+            case .boolean:     return ASN1.Boolean(data: data)
+            case .integer:     return ASN1.Integer(data: data)
+            case .bitString:   return ASN1.BitString(data: data)
+            case .octetString: return ASN1.OctetString(data: data)
             default:
                 print("Unimplemented dedicated class for tag \(tag)")
                 return ASN1.Item(data: data)

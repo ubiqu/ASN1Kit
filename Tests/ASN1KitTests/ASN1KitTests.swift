@@ -172,6 +172,20 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(bitString.tag, .bitString)
         XCTAssertEqual(bitString.data, bitStringEncoded)
     }
+    
+    func testOctetString() {
+        let data = Data(repeating: .random(in: 0 ... UInt8.max), count: .random(in: 0 ..< 5000))
+        let octetItem = ASN1.OctetString(data)
+        XCTAssertEqual(octetItem.tag, .octetString)
+        XCTAssertEqual(octetItem.length, data.count)
+        XCTAssertEqual(octetItem.value, data)
+        
+        let octetDecoded = ASN1.Item.decode(data: octetItem.data)
+        XCTAssertTrue(octetDecoded is ASN1.OctetString)
+        XCTAssertEqual(octetDecoded.tag, .octetString)
+        XCTAssertEqual(octetDecoded.data, octetItem.data)
+        XCTAssertEqual(octetDecoded.value, data)
+    }
 
     static var allTests = [
         ("testStaticTags", testStaticTags),
@@ -180,6 +194,7 @@ final class ASN1KitTests: XCTestCase {
         ("testSignedInteger", testSignedInteger),
         ("testSignedIntegerNegative", testSignedIntegerNegative),
         ("testSignedIntegerPositive", testSignedIntegerPositive),
-        ("testBitString", testBitString)
+        ("testBitString", testBitString),
+        ("testOctetString", testOctetString)
     ]
 }
