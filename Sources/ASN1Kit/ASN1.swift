@@ -167,6 +167,9 @@ extension ASN1 {
         /// The value of the item.
         public let value: Data
         
+        /// The parent of the item.
+        public weak var parent: ASN1.Item?
+        
         // MARK: - Initializers
         
         /// Construct the ASN.1 item from its components.
@@ -209,8 +212,9 @@ extension ASN1 {
             case .null:             return ASN1.Null(data: data)
             case .objectIdentifier: return ASN1.ObjectIdentifier(data: data)
             case .utf8String:       return ASN1.UTF8String(data: data)
+            case .sequence:         return ASN1.Sequence(data: data)
             default:
-                print("Unimplemented dedicated class for tag \(tag)")
+                NSLog("[ASN1Kit] Unimplemented dedicated class for tag (\(tag.data.hexadecimal))")
                 return ASN1.Item(data: data)
             }
         }
@@ -273,3 +277,22 @@ extension ASN1.Item {
     }
 }
 
+public protocol ConstructedItem where Self: ASN1.Item {}
+
+extension ConstructedItem {
+    /// The children of this constructed item.
+    public var children: [ASN1.Item] {
+        var children = [ASN1.Item]()
+        guard !data.isEmpty else { return children }
+        
+        var copy = value
+        while !copy.isEmpty {
+            let child = ASN1.Item.decode(data: copy)
+            child.parent = self
+            children.append(child)
+            copy.removeSubrange(0 ..< child.data.count)
+        }
+        
+        return children
+    }
+}
