@@ -186,6 +186,19 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(octetDecoded.data, octetItem.data)
         XCTAssertEqual(octetDecoded.value, data)
     }
+    
+    func testNull() {
+        let nullItem = ASN1.Null()
+        XCTAssertEqual(nullItem.tag, .null)
+        XCTAssertEqual(nullItem.length, 0)
+        XCTAssertEqual(nullItem.value, Data())
+        
+        let nullDecoded = ASN1.Item.decode(data: nullItem.data)
+        XCTAssertTrue(nullDecoded is ASN1.Null)
+        XCTAssertEqual(nullDecoded.tag, .null)
+        XCTAssertEqual(nullDecoded.data, nullItem.data)
+        XCTAssertEqual(nullDecoded.value, nullItem.value)
+    }
 
     static var allTests = [
         ("testStaticTags", testStaticTags),

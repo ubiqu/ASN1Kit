@@ -206,6 +206,7 @@ extension ASN1 {
             case .integer:     return ASN1.Integer(data: data)
             case .bitString:   return ASN1.BitString(data: data)
             case .octetString: return ASN1.OctetString(data: data)
+            case .null:        return ASN1.Null(data: data)
             default:
                 print("Unimplemented dedicated class for tag \(tag)")
                 return ASN1.Item(data: data)
