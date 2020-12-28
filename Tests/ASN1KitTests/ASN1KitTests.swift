@@ -4,12 +4,12 @@ import XCTest
 final class ASN1KitTests: XCTestCase {
     func testStaticTags() {
         let encoded: [UInt8] = [
-            0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x0C, 0x30, 0x31, 0x13, 0x14, 0x16, 0x1e
+            0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x0C, 0x30, 0x31, 0x13, 0x16, 0x1e
         ]
         let tags = [
             ASN1.Tag.boolean, ASN1.Tag.integer, ASN1.Tag.bitString, ASN1.Tag.octetString, ASN1.Tag.null,
             ASN1.Tag.objectIdentifier, ASN1.Tag.utf8String, ASN1.Tag.sequence, ASN1.Tag.set, ASN1.Tag.printableString,
-            ASN1.Tag.t61String, ASN1.Tag.ia5String, ASN1.Tag.bmpString]
+            ASN1.Tag.ia5String, ASN1.Tag.bmpString]
         
         for item in zip(encoded, tags) {
             XCTAssertEqual(item.0, item.1.data.first!)
@@ -260,7 +260,7 @@ final class ASN1KitTests: XCTestCase {
     
     func testSet() {
         let oid = ASN1.OID(oidString: "2.5.4.10")
-        let str = ASN1.Item(tag: .printableString, value: Data([0x13, 0x1B, 0x44, 0x69, 0x67, 0x69, 0x74, 0x61, 0x6C, 0x20, 0x53, 0x69, 0x67, 0x6E, 0x61, 0x74, 0x75, 0x72, 0x65, 0x20, 0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x43, 0x6F, 0x2E]))
+        let str = ASN1.PrintableString("Digital Signature Trust Co.")
         
         let set = ASN1.Set([oid, str])
         XCTAssertEqual(set.tag, .set)
@@ -283,7 +283,51 @@ final class ASN1KitTests: XCTestCase {
             XCTAssertNotNil(item.parent)
         }
     }
-
+    
+    func testPrintableString() {
+        let encoded = Data(hexString: "4469676974616c205369676e617475726520547275737420436f2e")!
+        let string = "Digital Signature Trust Co."
+        let printable = ASN1.PrintableString(string)
+        XCTAssertEqual(printable.tag, .printableString)
+        XCTAssertEqual(printable.value, encoded)
+        XCTAssertEqual(printable.printableString, string)
+        
+        let printableDecoded = ASN1.Item.decode(data: printable.data)
+        XCTAssertTrue(printableDecoded is ASN1.PrintableString)
+        XCTAssertEqual(printableDecoded.length, string.count)
+        XCTAssertEqual(printableDecoded.value, encoded)
+        XCTAssertEqual(printableDecoded.data, printable.data)
+    }
+    
+    func testIA5String() {
+        let encoded = Data(hexString: "687474703A2F2F6370732E726F6F742D78312E6C657473656E63727970742E6F7267")!
+        let string = "http://cps.root-x1.letsencrypt.org"
+        let ia5 = ASN1.IA5String(string)
+        XCTAssertEqual(ia5.tag, .ia5String)
+        XCTAssertEqual(ia5.value, encoded)
+        XCTAssertEqual(ia5.ia5String, string)
+        
+        let ia5Decoded = ASN1.Item.decode(data: ia5.data)
+        XCTAssertTrue(ia5Decoded is ASN1.IA5String)
+        XCTAssertEqual(ia5Decoded.length, string.count)
+        XCTAssertEqual(ia5Decoded.value, encoded)
+        XCTAssertEqual(ia5Decoded.data, ia5.data)
+    }
+    
+    func testBMPString() {
+        let string = "CertificateTemplate"
+        let encoded = Data(hexString: "0043006500720074006900660069006300610074006500540065006d0070006c006100740065")!
+        let bmp = ASN1.BMPString(string)
+        XCTAssertEqual(bmp.tag, .bmpString)
+        XCTAssertEqual(bmp.value, encoded)
+        
+        let bmpDecoded = ASN1.Item.decode(data: bmp.data)
+        XCTAssertTrue(bmpDecoded is ASN1.BMPString)
+        XCTAssertEqual(bmpDecoded.length, encoded.count)
+        XCTAssertEqual(bmpDecoded.value, encoded)
+        XCTAssertEqual(bmpDecoded.data, bmp.data)
+    }
+    
     static var allTests = [
         ("testStaticTags", testStaticTags),
         ("testItem", testItem),
@@ -297,6 +341,9 @@ final class ASN1KitTests: XCTestCase {
         ("testObjectIdentifier", testObjectIdentifier),
         ("testUTF8String", testUTF8String),
         ("testSequence", testSequence),
-        ("testSet", testSet)
+        ("testSet", testSet),
+        ("testPrintableString", testPrintableString),
+        ("testIA5String", testIA5String),
+        ("testBMPString", testBMPString)
     ]
 }

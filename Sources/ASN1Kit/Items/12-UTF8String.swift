@@ -9,8 +9,8 @@ extension ASN1 {
         }
         
         /// The decoded UTF-8 string.
-        public var utf8String: String {
-            return String(data: value, encoding: .utf8)!
-        }
+        public lazy var utf8String: String = {
+            String(data: value, encoding: .utf8)!
+        }()
     }
 }

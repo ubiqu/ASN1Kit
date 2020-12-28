@@ -134,7 +134,6 @@ extension ASN1.Tag {
     public static let sequence         = ASN1.Tag(class: .universal, form: .constructed, tagValue: .sequence)
     public static let set              = ASN1.Tag(class: .universal, form: .constructed, tagValue: .set)
     public static let printableString  = ASN1.Tag(class: .universal, form: .primitive,   tagValue: .printableString)
-    public static let t61String        = ASN1.Tag(class: .universal, form: .primitive,   tagValue: .t61String)
     public static let ia5String        = ASN1.Tag(class: .universal, form: .primitive,   tagValue: .ia5String)
     public static let bmpString        = ASN1.Tag(class: .universal, form: .primitive,   tagValue: .bmpString)
 }
@@ -214,8 +213,11 @@ extension ASN1 {
             case .utf8String:       return ASN1.UTF8String(data: data)
             case .sequence:         return ASN1.Sequence(data: data)
             case .set:              return ASN1.Set(data: data)
+            case .printableString:  return ASN1.PrintableString(data: data)
+            case .ia5String:        return ASN1.IA5String(data: data)
+            case .bmpString:        return ASN1.BMPString(data: data)
             default:
-                NSLog("[ASN1Kit] Unimplemented dedicated class for tag (\(tag.data.hexadecimal))")
+                NSLog("[ASN1Kit] Warning: unimplemented dedicated class for tag (\(tag.data.hexadecimal))")
                 return ASN1.Item(data: data)
             }
         }

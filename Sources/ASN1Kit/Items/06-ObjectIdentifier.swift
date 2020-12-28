@@ -38,7 +38,7 @@ extension ASN1 {
         }
         
         /// The decoded object identifier string.
-        public var oidString: String {
+        public lazy var oidString: String = {
             var oidBytes = value
             var oid = [Int]()
             let first = Int(oidBytes.remove(at: 0))
@@ -55,6 +55,6 @@ extension ASN1 {
                 }
             }
             return oid.map { String("\($0)") }.joined(separator: ".")
-        }
+        }()
     }
 }
