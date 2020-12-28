@@ -196,8 +196,40 @@ final class ASN1KitTests: XCTestCase {
         let nullDecoded = ASN1.Item.decode(data: nullItem.data)
         XCTAssertTrue(nullDecoded is ASN1.Null)
         XCTAssertEqual(nullDecoded.tag, .null)
-        XCTAssertEqual(nullDecoded.data, nullItem.data)
         XCTAssertEqual(nullDecoded.value, nullItem.value)
+        XCTAssertEqual(nullDecoded.data, nullItem.data)
+    }
+    
+    func testObjectIdentifier() {
+        let oidString = "1.2.840.113549.1.1.11"
+        let oidItem = ASN1.OID(oidString: oidString)
+        let oidEncoded = Data([0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B])
+        XCTAssertEqual(oidItem.tag, .objectIdentifier)
+        XCTAssertEqual(oidItem.length, 9)
+        XCTAssertEqual(oidItem.data, oidEncoded)
+        XCTAssertEqual(oidItem.oidString, oidString)
+        
+        let oidDecoded = ASN1.Item.decode(data: oidItem.data)
+        XCTAssertTrue(oidDecoded is ASN1.ObjectIdentifier)
+        XCTAssertEqual(oidDecoded.tag, .objectIdentifier)
+        XCTAssertEqual(oidDecoded.value, oidItem.value)
+        XCTAssertEqual(oidDecoded.data, oidItem.data)
+    }
+    
+    func testUTF8String() {
+        let string = "Test"
+        let encodedString = Data([0x54, 0x65, 0x73, 0x74])
+        let utf8Item = ASN1.UTF8String(string)
+        XCTAssertEqual(utf8Item.tag, .utf8String)
+        XCTAssertEqual(utf8Item.length, string.count)
+        XCTAssertEqual(utf8Item.value, encodedString)
+        XCTAssertEqual(utf8Item.utf8String, string)
+        
+        let utf8StringDecoded = ASN1.Item.decode(data: utf8Item.data)
+        XCTAssertTrue(utf8StringDecoded is ASN1.UTF8String)
+        XCTAssertEqual(utf8StringDecoded.length, string.count)
+        XCTAssertEqual(utf8StringDecoded.value, encodedString)
+        XCTAssertEqual(utf8StringDecoded.data, utf8Item.data)
     }
 
     static var allTests = [
@@ -208,6 +240,8 @@ final class ASN1KitTests: XCTestCase {
         ("testSignedIntegerNegative", testSignedIntegerNegative),
         ("testSignedIntegerPositive", testSignedIntegerPositive),
         ("testBitString", testBitString),
-        ("testOctetString", testOctetString)
+        ("testOctetString", testOctetString),
+        ("testNull", testNull),
+        ("testObjectIdentifier", testObjectIdentifier)
     ]
 }
