@@ -1,5 +1,5 @@
 import XCTest
-@testable import ASN1Kit
+import ASN1Kit
 
 final class ASN1KitTests: XCTestCase {
     func testStaticTags() {
@@ -18,13 +18,13 @@ final class ASN1KitTests: XCTestCase {
     
     func testItem() {
         let boolData = Data([0x01])
-        let bool = ASN1.Item(tag: .boolean, value: boolData)
+        let bool = ASN1.Boolean(bool: true)
         let boolEncoded = Data([0x01, 0x01, 0x01])
         XCTAssertEqual(bool.tag, .boolean)
         XCTAssertEqual(bool.length, boolData.count)
         XCTAssertEqual(bool.data, boolEncoded)
         
-        let boolFromData = ASN1.Item(data: bool.data)
+        let boolFromData = ASN1.Item.decode(data: bool.data)
         XCTAssertEqual(boolFromData.tag, .boolean)
         XCTAssertEqual(boolFromData.length, boolData.count)
         XCTAssertEqual(boolFromData.data, boolEncoded)
@@ -249,7 +249,7 @@ final class ASN1KitTests: XCTestCase {
     
     func testSequence() {
         let oid = ASN1.OID(oidString: "2.5.4.10")
-        let str = ASN1.Item(tag: .printableString, value: Data([0x13, 0x1B, 0x44, 0x69, 0x67, 0x69, 0x74, 0x61, 0x6C, 0x20, 0x53, 0x69, 0x67, 0x6E, 0x61, 0x74, 0x75, 0x72, 0x65, 0x20, 0x54, 0x72, 0x75, 0x73, 0x74, 0x20, 0x43, 0x6F, 0x2E]))
+        let str = ASN1.PrintableString("Digital Signature Trust Co.")
         
         let sequence = ASN1.Sequence([oid, str])
         XCTAssertEqual(sequence.tag, .sequence)
@@ -266,9 +266,9 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(sequenceDecoded.tag, .sequence)
         XCTAssertEqual(sequenceDecoded.length, oid.data.count + str.data.count)
         XCTAssertEqual(sequenceDecoded.value, oid.data + str.data)
-        XCTAssertEqual((sequenceDecoded as? ConstructedItem)?.children.count, 2)
+        XCTAssertEqual((sequenceDecoded as? ASN1.ConstructedItem)?.children.count, 2)
         
-        for item in (sequenceDecoded as! ConstructedItem).children {
+        for item in (sequenceDecoded as! ASN1.ConstructedItem).children {
             XCTAssertNotNil(item.parent)
         }
     }
@@ -292,15 +292,19 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(setDecoded.tag, .set)
         XCTAssertEqual(setDecoded.length, oid.data.count + str.data.count)
         XCTAssertEqual(setDecoded.value, oid.data + str.data)
-        XCTAssertEqual((setDecoded as? ConstructedItem)?.children.count, 2)
+        XCTAssertEqual((setDecoded as? ASN1.ConstructedItem)?.children.count, 2)
         
-        for item in (setDecoded as! ConstructedItem).children {
+        for item in (setDecoded as! ASN1.ConstructedItem).children {
             XCTAssertNotNil(item.parent)
         }
     }
     
     func testPrintableString() {
-        let encoded = Data(hexString: "4469676974616c205369676e617475726520547275737420436f2e")!
+        let encoded = Data([
+            0x44, 0x69, 0x67, 0x69, 0x74, 0x61, 0x6c, 0x20, 0x53, 0x69,
+            0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x20, 0x54, 0x72,
+            0x75, 0x73, 0x74, 0x20, 0x43, 0x6f, 0x2e
+        ])
         let string = "Digital Signature Trust Co."
         let printable = ASN1.PrintableString(string)
         XCTAssertEqual(printable.tag, .printableString)
@@ -315,7 +319,12 @@ final class ASN1KitTests: XCTestCase {
     }
     
     func testIA5String() {
-        let encoded = Data(hexString: "687474703A2F2F6370732E726F6F742D78312E6C657473656E63727970742E6F7267")!
+        let encoded = Data([
+            0x68, 0x74, 0x74, 0x70, 0x3A, 0x2F, 0x2F, 0x63, 0x70, 0x73,
+            0x2E, 0x72, 0x6F, 0x6F, 0x74, 0x2D, 0x78, 0x31, 0x2E, 0x6C,
+            0x65, 0x74, 0x73, 0x65, 0x6E, 0x63, 0x72, 0x79, 0x70, 0x74,
+            0x2E, 0x6F, 0x72, 0x67
+        ])
         let string = "http://cps.root-x1.letsencrypt.org"
         let ia5 = ASN1.IA5String(string)
         XCTAssertEqual(ia5.tag, .ia5String)
@@ -330,8 +339,13 @@ final class ASN1KitTests: XCTestCase {
     }
     
     func testBMPString() {
+        let encoded = Data([
+            0x00, 0x43, 0x00, 0x65, 0x00, 0x72, 0x00, 0x74, 0x00, 0x69,
+            0x00, 0x66, 0x00, 0x69, 0x00, 0x63, 0x00, 0x61, 0x00, 0x74,
+            0x00, 0x65, 0x00, 0x54, 0x00, 0x65, 0x00, 0x6d, 0x00, 0x70,
+            0x00, 0x6c, 0x00, 0x61, 0x00, 0x74, 0x00, 0x65
+        ])
         let string = "CertificateTemplate"
-        let encoded = Data(hexString: "0043006500720074006900660069006300610074006500540065006d0070006c006100740065")!
         let bmp = ASN1.BMPString(string)
         XCTAssertEqual(bmp.tag, .bmpString)
         XCTAssertEqual(bmp.value, encoded)
@@ -341,6 +355,47 @@ final class ASN1KitTests: XCTestCase {
         XCTAssertEqual(bmpDecoded.length, encoded.count)
         XCTAssertEqual(bmpDecoded.value, encoded)
         XCTAssertEqual(bmpDecoded.data, bmp.data)
+    }
+    
+    func testFirstWhere() {
+        let sequence = ASN1.Sequence([
+            ASN1.Sequence([
+                ASN1.OID(oidString: "1.2.840.1.133871"),
+                ASN1.UTF8String("Test Name")
+            ]),
+            ASN1.Sequence([
+                ASN1.OID(oidString: "1.2.840.1.556"),
+                ASN1.Null()
+            ])
+        ])
+        
+        let oid = sequence.first(where: { $0.tag == .objectIdentifier })
+        XCTAssertNotNil(oid)
+        XCTAssertEqual(oid!.tag, .objectIdentifier)
+        XCTAssertEqual((oid! as! ASN1.OID).oidString, "1.2.840.1.133871")
+        
+        let printable = sequence.first(where: { $0.tag == .printableString })
+        XCTAssertNil(printable)
+    }
+    
+    func testFiltering() {
+        let sequence = ASN1.Sequence([
+            ASN1.Sequence([
+                ASN1.OID(oidString: "1.2.840.1.133871"),
+                ASN1.UTF8String("Test Name")
+            ]),
+            ASN1.Sequence([
+                ASN1.OID(oidString: "1.2.840.1.556"),
+                ASN1.Null()
+            ])
+        ])
+        
+        let sequences = sequence.filter({ $0.tag == .sequence })
+        XCTAssertEqual(sequences.count, 3)
+        
+        let oids = sequence.filter({ $0.tag == .objectIdentifier }) as! [ASN1.OID]
+        XCTAssertEqual(oids.count, 2)
+        XCTAssertNotEqual(oids[0].data, oids[1].data)
     }
     
     static var allTests = [
@@ -359,6 +414,8 @@ final class ASN1KitTests: XCTestCase {
         ("testSet", testSet),
         ("testPrintableString", testPrintableString),
         ("testIA5String", testIA5String),
-        ("testBMPString", testBMPString)
+        ("testBMPString", testBMPString),
+        ("testFirstWhere", testFirstWhere),
+        ("testFiltering", testFiltering)
     ]
 }

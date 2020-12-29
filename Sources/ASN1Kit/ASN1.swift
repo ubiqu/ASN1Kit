@@ -2,7 +2,7 @@ import Foundation
 
 public enum ASN1 {}
 
-// MARK: - Tag
+// MARK: - ASN.1 Tag
 extension ASN1 {
     public class Tag {
         // MARK: Class
@@ -69,7 +69,7 @@ extension ASN1 {
             //   relativeOIDIRI   = 0b00100100
         }
         
-        // MARK: - Properties
+        // MARK: Properties
         
         /// The class of the tag.
         public let `class`: Class
@@ -92,7 +92,7 @@ extension ASN1 {
             form == .constructed
         }()
         
-        // MARK: - Initializers
+        // MARK: Initializers
         
         /// Construct the tag from its raw byte.
         /// - Parameter encoded: The byte that makes up the tag.
@@ -122,7 +122,7 @@ extension ASN1 {
     }
 }
 
-// MARK: - Universal ASN.1 tags
+// MARK: Universal ASN.1 tags
 extension ASN1.Tag {
     public static let boolean          = ASN1.Tag(class: .universal, form: .primitive,   tagValue: .boolean)
     public static let integer          = ASN1.Tag(class: .universal, form: .primitive,   tagValue: .integer)
@@ -152,7 +152,7 @@ extension ASN1.Tag: Comparable {
     }
 }
 
-// MARK: - Item
+// MARK: - ASN.1 Item
 extension ASN1 {
     public class Item {
         // MARK: - Properties
@@ -167,9 +167,9 @@ extension ASN1 {
         public let value: Data
         
         /// The parent of the item.
-        public weak var parent: ASN1.Item?
+        public weak var parent: ASN1.ConstructedItem?
         
-        // MARK: - Initializers
+        // MARK: Initializers
         
         /// Construct the ASN.1 item from its components.
         /// The length will be extracted from the value.
@@ -194,6 +194,20 @@ extension ASN1 {
             precondition(data.count >= length, "Invalid data, length field exceeds end of data")
             let value = data.subdata(in: 0 ..< length)
             self.init(tag: tag, value: value)
+            
+            if self is ConstructedItem {
+                let constructed = self as! ConstructedItem
+                var copy = value
+                var children = [ASN1.Item]()
+                
+                while !copy.isEmpty {
+                    let child = ASN1.Item.decode(data: copy)
+                    child.parent = constructed
+                    children.append(child)
+                    copy.removeSubrange(0 ..< child.data.count)
+                }
+                constructed.children = children
+            }
         }
         
         /// Decode ASN.1 data.
@@ -280,22 +294,36 @@ extension ASN1.Item {
     }
 }
 
-public protocol ConstructedItem where Self: ASN1.Item {}
-
-extension ConstructedItem {
-    /// The children of this constructed item.
-    public var children: [ASN1.Item] {
-        var children = [ASN1.Item]()
-        guard !data.isEmpty else { return children }
-        
-        var copy = value
-        while !copy.isEmpty {
-            let child = ASN1.Item.decode(data: copy)
-            child.parent = self
-            children.append(child)
-            copy.removeSubrange(0 ..< child.data.count)
+// MARK: Filtering
+extension ASN1.Item {
+    /// Returns the first element of the ASN.1 item that satisfies the given predicate.
+    /// - Parameter predicate: A closure that takes an ASN.1 item as its argument and returns a Boolean value indicating whether the item is a match.
+    /// - Returns: The first item of the ASN.1 item and its children that satisfies predicate, or `nil` if there is no item that satisfies predicate.
+    public func first(where predicate: (ASN1.Item) -> Bool) -> ASN1.Item? {
+        if predicate(self) { return self }
+        if let constructed = self as? ASN1.ConstructedItem {
+            return constructed.children.compactMap { $0.first(where: predicate) }.first
         }
-        
-        return children
+        return nil
+    }
+    
+    /// Returns an array containing, in order, the elements of the ASN.1 item that satisfy the given predicate.
+    /// - Parameter isIncluded: A closure that takes an ASN.1 item as its argument and returns a Boolean value indicating whether the item should be included in the returned array.
+    /// - Returns: An array of the items that `isIncluded` allowed.
+    public func filter(_ isIncluded: (ASN1.Item) throws -> Bool) rethrows -> [ASN1.Item] {
+        var filtered = [ASN1.Item]()
+        if try isIncluded(self) { filtered.append(self) }
+        if let constructed = self as? ASN1.ConstructedItem {
+            filtered.append(contentsOf: try constructed.children.map { try $0.filter(isIncluded) }.reduce([], +))
+        }
+        return filtered
+    }
+}
+
+// MARK: - ASN.1 constructed item
+extension ASN1 {
+    public class ConstructedItem: ASN1.Item {
+        /// The children of this constructed item.
+        internal(set) public var children: [ASN1.Item] = []
     }
 }
