@@ -1,0 +1,263 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.3.2 (swiftlang-1200.0.45 clang-1200.0.32.28)
+// swift-module-flags: -target x86_64-apple-ios9.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name ASN1Kit
+import Foundation
+import Swift
+public enum ASN1 {
+}
+extension ASN1 {
+  public class Tag {
+    public enum Class : Swift.UInt8 {
+      case universal
+      case application
+      case contextSpecific
+      case `private`
+      public typealias RawValue = Swift.UInt8
+      public init?(rawValue: Swift.UInt8)
+      public var rawValue: Swift.UInt8 {
+        get
+      }
+    }
+    public enum Form : Swift.UInt8 {
+      case primitive
+      case constructed
+      public typealias RawValue = Swift.UInt8
+      public init?(rawValue: Swift.UInt8)
+      public var rawValue: Swift.UInt8 {
+        get
+      }
+    }
+    public enum Value : Swift.UInt8 {
+      case endOfContent
+      case boolean
+      case integer
+      case bitString
+      case octetString
+      case null
+      case objectIdentifier
+      case objectDescriptor
+      case external
+      case real
+      case enumerated
+      case embeddedPDV
+      case utf8String
+      case relativeOID
+      case time
+      case sequence
+      case set
+      case numericString
+      case printableString
+      case t61String
+      case videotexString
+      case ia5String
+      case utcTime
+      case generalizedTime
+      case graphicString
+      case visibleString
+      case generalString
+      case universalString
+      case characterString
+      case bmpString
+      case date
+      public typealias RawValue = Swift.UInt8
+      public init?(rawValue: Swift.UInt8)
+      public var rawValue: Swift.UInt8 {
+        get
+      }
+    }
+    final public let `class`: ASN1Kit.ASN1.Tag.Class
+    final public let form: ASN1Kit.ASN1.Tag.Form
+    final public let value: ASN1Kit.ASN1.Tag.Value
+    public var data: Foundation.Data {
+      get
+      set
+    }
+    public var isPrimitive: Swift.Bool {
+      get
+      set
+    }
+    public var isConstructed: Swift.Bool {
+      get
+      set
+    }
+    public init(_ rawValue: Swift.UInt8)
+    convenience public init(class c: ASN1Kit.ASN1.Tag.Class, form: ASN1Kit.ASN1.Tag.Form, tagValue: ASN1Kit.ASN1.Tag.Value)
+    convenience public init(class c: ASN1Kit.ASN1.Tag.Class, form: ASN1Kit.ASN1.Tag.Form, tagValue: Swift.UInt8)
+    @objc deinit
+  }
+}
+extension ASN1.Tag {
+  public static let boolean: ASN1Kit.ASN1.Tag
+  public static let integer: ASN1Kit.ASN1.Tag
+  public static let bitString: ASN1Kit.ASN1.Tag
+  public static let octetString: ASN1Kit.ASN1.Tag
+  public static let null: ASN1Kit.ASN1.Tag
+  public static let objectIdentifier: ASN1Kit.ASN1.Tag
+  public static let utf8String: ASN1Kit.ASN1.Tag
+  public static let sequence: ASN1Kit.ASN1.Tag
+  public static let set: ASN1Kit.ASN1.Tag
+  public static let printableString: ASN1Kit.ASN1.Tag
+  public static let ia5String: ASN1Kit.ASN1.Tag
+  public static let bmpString: ASN1Kit.ASN1.Tag
+}
+extension ASN1.Tag : Swift.Equatable {
+  public static func == (lhs: ASN1Kit.ASN1.Tag, rhs: ASN1Kit.ASN1.Tag) -> Swift.Bool
+}
+extension ASN1.Tag : Swift.Comparable {
+  public static func < (lhs: ASN1Kit.ASN1.Tag, rhs: ASN1Kit.ASN1.Tag) -> Swift.Bool
+}
+extension ASN1 {
+  @_hasMissingDesignatedInitializers public class Item {
+    final public let tag: ASN1Kit.ASN1.Tag
+    public var length: Swift.Int {
+      get
+    }
+    final public let value: Foundation.Data
+    weak public var parent: ASN1Kit.ASN1.ConstructedItem?
+    public static func decode(data: Foundation.Data) -> ASN1Kit.ASN1.Item
+    @objc deinit
+  }
+}
+extension ASN1.Item {
+  public var data: Foundation.Data {
+    get
+  }
+}
+extension ASN1.Item {
+  public func first(where predicate: (ASN1Kit.ASN1.Item) -> Swift.Bool) -> ASN1Kit.ASN1.Item?
+  public func filter(_ isIncluded: (ASN1Kit.ASN1.Item) throws -> Swift.Bool) rethrows -> [ASN1Kit.ASN1.Item]
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class ConstructedItem : ASN1Kit.ASN1.Item {
+    public var children: [ASN1Kit.ASN1.Item] {
+      get
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class Boolean : ASN1Kit.ASN1.Item {
+    convenience public init(bool: Swift.Bool)
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class Integer : ASN1Kit.ASN1.Item {
+    convenience public init(_ uint64: Swift.UInt64)
+    convenience public init(_ uint8: Swift.UInt8)
+    convenience public init(_ uint16: Swift.UInt16)
+    convenience public init(_ uint32: Swift.UInt32)
+    convenience public init(_ uint: Swift.UInt)
+    convenience public init(_ int64: Swift.Int64)
+    convenience public init(_ int8: Swift.Int8)
+    convenience public init(_ int16: Swift.Int16)
+    convenience public init(_ int32: Swift.Int32)
+    convenience public init(_ int: Swift.Int)
+    public var uint: Swift.UInt {
+      get
+      set
+    }
+    public var int: Swift.Int {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class BitString : ASN1Kit.ASN1.Item {
+    convenience public init(bitString: Swift.String)
+    public var bitString: Swift.String {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class OctetString : ASN1Kit.ASN1.Item {
+    convenience public init(_ bytes: Foundation.Data)
+    convenience public init(_ bytes: [Swift.UInt8])
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class Null : ASN1Kit.ASN1.Item {
+    convenience public init()
+    @objc deinit
+  }
+}
+extension ASN1 {
+  public typealias OID = ASN1Kit.ASN1.ObjectIdentifier
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class ObjectIdentifier : ASN1Kit.ASN1.Item {
+    convenience public init(oidString string: Swift.String)
+    public var oidString: Swift.String {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class UTF8String : ASN1Kit.ASN1.Item {
+    convenience public init(_ utf8String: Swift.String)
+    public var utf8String: Swift.String {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  public typealias SequenceOf = ASN1Kit.ASN1.Sequence
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class Sequence : ASN1Kit.ASN1.ConstructedItem {
+    convenience public init(_ items: [ASN1Kit.ASN1.Item])
+    @objc deinit
+  }
+}
+extension ASN1 {
+  public typealias SetOf = ASN1Kit.ASN1.Set
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class Set : ASN1Kit.ASN1.ConstructedItem {
+    convenience public init(_ items: [ASN1Kit.ASN1.Item])
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class PrintableString : ASN1Kit.ASN1.Item {
+    convenience public init(_ printableString: Swift.String)
+    public var printableString: Swift.String {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class IA5String : ASN1Kit.ASN1.Item {
+    convenience public init(_ ia5String: Swift.String)
+    public var ia5String: Swift.String {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1 {
+  @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class BMPString : ASN1Kit.ASN1.Item {
+    convenience public init(_ bmpString: Swift.String)
+    public var bmpString: Swift.String {
+      get
+      set
+    }
+    @objc deinit
+  }
+}
+extension ASN1Kit.ASN1.Tag.Class : Swift.Equatable {}
+extension ASN1Kit.ASN1.Tag.Class : Swift.Hashable {}
+extension ASN1Kit.ASN1.Tag.Class : Swift.RawRepresentable {}
+extension ASN1Kit.ASN1.Tag.Form : Swift.Equatable {}
+extension ASN1Kit.ASN1.Tag.Form : Swift.Hashable {}
+extension ASN1Kit.ASN1.Tag.Form : Swift.RawRepresentable {}
+extension ASN1Kit.ASN1.Tag.Value : Swift.Equatable {}
+extension ASN1Kit.ASN1.Tag.Value : Swift.Hashable {}
+extension ASN1Kit.ASN1.Tag.Value : Swift.RawRepresentable {}
