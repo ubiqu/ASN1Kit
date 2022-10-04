@@ -9,8 +9,6 @@ let package = Package(
         .library(name: "ASN1Kit", targets: ["ASN1Kit"]),
     ],
     targets: [
-        .binaryTarget(
-            name: "ASN1Kit",
-            path: "xcframework/ASN1Kit.xcframework")
+        .target(name: "ASN1Kit", dependencies: []),
     ]
 )
